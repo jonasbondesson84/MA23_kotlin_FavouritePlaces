@@ -1,6 +1,8 @@
 package com.example.favouriteplaces
 
-data class Place(
+import com.google.firebase.firestore.DocumentId
+
+data class Place( @DocumentId var docID: String? = null,
     val title: String? = null,
     var description: String? = null,
     val lat: Long? = null,

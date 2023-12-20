@@ -10,6 +10,8 @@ import androidx.recyclerview.widget.RecyclerView
 class FavouritesAdapter (context: Context, val listOfFavourites: MutableList<Place>): RecyclerView.Adapter<FavouritesAdapter.ViewHolder>() {
 
     private val layoutInflater = LayoutInflater.from(context)
+
+    var onCardClick: ((Place) -> Unit)? = null
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var tvTitle: TextView = itemView.findViewById(R.id.tvCardTitle)
         var tvDesc: TextView = itemView.findViewById(R.id.tvCardDesc)
@@ -28,6 +30,11 @@ class FavouritesAdapter (context: Context, val listOfFavourites: MutableList<Pla
     override fun onBindViewHolder(holder: FavouritesAdapter.ViewHolder, position: Int) {
         holder.tvTitle.text = listOfFavourites[position].title
         holder.tvDesc.text = listOfFavourites[position].description
+
+        holder.itemView.setOnClickListener {
+            val place = listOfFavourites[position]
+            onCardClick?.invoke(place)
+        }
     }
 
     override fun getItemCount(): Int {

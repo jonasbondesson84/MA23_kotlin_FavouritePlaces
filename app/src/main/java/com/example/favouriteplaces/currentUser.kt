@@ -15,4 +15,12 @@ object currentUser {
     }
 
 
+    fun resetUser() {
+        documentId = null
+        userID = null
+        name = null
+        location = null
+        userImage = null
+    }
+
 }
