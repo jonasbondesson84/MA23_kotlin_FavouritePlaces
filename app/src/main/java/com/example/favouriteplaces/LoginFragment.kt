@@ -1,6 +1,7 @@
 package com.example.favouriteplaces
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,6 +12,9 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.firestore
+import com.google.firebase.firestore.toObject
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -32,6 +36,7 @@ class LoginFragment : Fragment() {
     private lateinit var etvUser: EditText
     private lateinit var etvPassword: EditText
     private lateinit var auth: FirebaseAuth
+    private lateinit var db: FirebaseFirestore
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,6 +44,8 @@ class LoginFragment : Fragment() {
             param1 = it.getString(ARG_PARAM1)
             param2 = it.getString(ARG_PARAM2)
         }
+
+
     }
 
     override fun onCreateView(
@@ -54,7 +61,7 @@ class LoginFragment : Fragment() {
         etvUser = view.findViewById(R.id.etvUser)
         etvPassword = view.findViewById(R.id.etvPassword)
         auth = Firebase.auth
-
+        db = Firebase.firestore
 
         btnLogin.setOnClickListener {
             signIn(view)
@@ -74,33 +81,73 @@ class LoginFragment : Fragment() {
     private fun signIn(view: View) {
         val email = etvUser.text.toString()
         val password = etvPassword.text.toString()
-        if ( email.isEmpty() || password.isEmpty()) {
+        if (email.isEmpty() || password.isEmpty()) {
             return
         }
         auth.signInWithEmailAndPassword(email, password)
-            .addOnCompleteListener {task ->
-                if(task.isSuccessful) {
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    getCurrentUserInfo()
                     (activity as MainActivity).switchFragment(StartFragment())
                 } else {
-                    Snackbar.make(view, "Email or password incorrect, try again.", 2000).show()
+                    Snackbar.make(view, getText(R.string.errorLogIn), 2000).show()
                 }
-        }
+            }
     }
 
     private fun signUp(view: View) {
         val email = etvUser.text.toString()
         val password = etvPassword.text.toString()
-        if ( email.isEmpty() || password.isEmpty()) {
+        if (email.isEmpty() || password.isEmpty()) {
             return
         }
         auth.createUserWithEmailAndPassword(email, password)
-            .addOnCompleteListener {task ->
-                if(task.isSuccessful) {
-                    (activity as MainActivity).switchFragment(StartFragment())
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    task.result.user?.uid.let {
+                        val user = User(userID = it)
+                        db.collection("usersCollection").add(user)
+                            .addOnCompleteListener { task ->
+                                if (task.isSuccessful) {
+                                    getCurrentUserInfo()
+                                    (activity as MainActivity).switchFragment(StartFragment())
+                                } else {
+                                    Snackbar.make(view, getString(R.string.errorSignUp), 2000)
+                                        .show()
+                                }
+                            }
+                    }
+
                 } else {
-                    Snackbar.make(view, "Unable to create user, please try again", 2000)
+                    Snackbar.make(view, getText(R.string.errorSignUp), 2000).show()
                 }
             }
+    }
+
+    private fun getCurrentUserInfo() {
+        val user = auth.currentUser
+        if(user != null) {
+            db.collection("usersCollection").get().addOnSuccessListener {DocumentSnapshot ->
+                for(document in DocumentSnapshot) {
+                    if(document.get("userID").toString() == user.uid) {
+                        Log.d("!!!", "Got it!")
+                        val user = document.toObject<User>()
+                        currentUser.name = user.name
+                        currentUser.userID = user.userID
+                        currentUser.userImage = user.userImage
+                        currentUser.location = user.location
+                        currentUser.documentId = user.documentId
+                        Log.d("!!!", currentUser.documentId.toString())
+                        return@addOnSuccessListener
+                    }
+                }
+                Log.d("!!!", "user not found!")
+            }
+        }
+
+
+        //currentUser.name =
+
     }
 
 

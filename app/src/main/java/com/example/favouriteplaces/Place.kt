@@ -1,13 +1,13 @@
 package com.example.favouriteplaces
 
 data class Place(
-    val name: String,
-    val lat: Long,
-    val lng: Long,
-    val category: String,
-    val stars: Double,
-    val review: String,
-    val public: Boolean,
-    val author: String
+    val name: String? = null,
+    val lat: Long? = null,
+    val lng: Long? = null,
+    val category: String? = null,
+    val stars: Double? = null,
+    val review: String? = null,
+    val public: Boolean? = null,
+    val author: String? = null
 ) {
 }
