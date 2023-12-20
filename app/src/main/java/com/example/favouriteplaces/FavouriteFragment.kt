@@ -1,10 +1,20 @@
 package com.example.favouriteplaces
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.auth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.firestore
+import com.google.firebase.firestore.toObject
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -21,6 +31,13 @@ class FavouriteFragment : Fragment() {
     private var param1: String? = null
     private var param2: String? = null
 
+    private lateinit var rvFavourites: RecyclerView
+    private lateinit var fabAdd: FloatingActionButton
+
+    private lateinit var db: FirebaseFirestore
+    private lateinit var auth: FirebaseAuth
+    private lateinit var adapter: FavouritesAdapter
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -36,7 +53,46 @@ class FavouriteFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_favourite, container, false)
+        val view = inflater.inflate(R.layout.fragment_favourite, container, false)
+
+        rvFavourites = view.findViewById(R.id.rvFavourites)
+        fabAdd = view.findViewById(R.id.fabAddFavourite)
+        db = Firebase.firestore
+        auth = Firebase.auth
+
+        rvFavourites.layoutManager = LinearLayoutManager(view.context)
+        adapter = FavouritesAdapter(view.context, currentUser.favouritesList)
+        rvFavourites.adapter = adapter
+
+        getFavourites()
+
+
+        fabAdd.setOnClickListener {
+            val intent = Intent(view.context, AddfavouriteActivity::class.java)
+            startActivity(intent)
+        }
+        return view
+    }
+
+    private fun getFavourites() {
+        val user = currentUser
+
+        if (user.userID == null) {
+            return
+        } else {
+            db.collection("users").document(user.userID.toString()).collection("favourites").get()
+                .addOnSuccessListener { documentSnapshot ->
+                    for (document in documentSnapshot.documents) {
+                        val place = document.toObject<Place>()
+                        if (place != null) {
+                            currentUser.favouritesList.add(place)
+                        }
+                    }
+                    adapter.notifyDataSetChanged()
+                }
+
+        }
+
     }
 
     companion object {

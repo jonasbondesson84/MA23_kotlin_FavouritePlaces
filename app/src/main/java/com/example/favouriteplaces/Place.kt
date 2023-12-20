@@ -1,7 +1,8 @@
 package com.example.favouriteplaces
 
 data class Place(
-    val name: String? = null,
+    val title: String? = null,
+    var description: String? = null,
     val lat: Long? = null,
     val lng: Long? = null,
     val category: String? = null,

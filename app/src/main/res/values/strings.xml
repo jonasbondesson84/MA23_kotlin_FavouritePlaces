@@ -16,4 +16,15 @@
     <string name="cancel">Cancel</string>
     <string name="name">Name</string>
     <string name="location">Location</string>
+    <string name="title">Title</string>
+    <string name="description">Description</string>
+    <string name="review">Review</string>
+    <string name="image">Image</string>
+    <string name="lat">Latitude</string>
+    <string name="lng">Longitude</string>
+    <string name="category">Category</string>
+    <string name="sharePublic">Public</string>
+    <string name="sharePrivate">Private</string>
+    <string name="author">Author</string>
+
 </resources>
