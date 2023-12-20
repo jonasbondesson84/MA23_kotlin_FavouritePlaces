@@ -7,5 +7,12 @@ object currentUser {
                var location: String? = null
                var userImage: String? = null
 
+    var favouritesList = mutableListOf <Place>()
+
+    init {
+        favouritesList.add(Place("Hemma", description = "Här är det bäst"))
+        favouritesList.add(Place("Borta", description = "Här är det sämst"))
+    }
+
 
 }

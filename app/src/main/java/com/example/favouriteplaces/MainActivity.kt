@@ -30,10 +30,11 @@ class MainActivity : AppCompatActivity() {
         val bottomNavBar: BottomNavigationView = findViewById(R.id.bottom_navigation)
         //val toolbar: Toolbar = findViewById(R.id.toolbar)
         db = Firebase.firestore
-        //checkIfUserIsLoggedIn(StartFragment(), LoginFragment())
+
         val user = User("")
         auth = Firebase.auth
         topAppBar = findViewById(R.id.topAppBar)
+        checkIfUserIsLoggedIn(StartFragment(), LoginFragment())
         topAppBar.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.menuLogoutAccount -> {
