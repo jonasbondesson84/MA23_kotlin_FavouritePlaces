@@ -9,4 +9,11 @@
     <string name="signup">Sign Up</string>
     <string name="password">Password</string>
     <string name="continueWithoutLogin">Continue without login</string>
+    <string name="errorLogIn">User or password incorrect, please try again</string>
+    <string name="errorSignUp">Unable to create user, please try again</string>
+    <string name="logout">Logout</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="name">Name</string>
+    <string name="location">Location</string>
 </resources>
