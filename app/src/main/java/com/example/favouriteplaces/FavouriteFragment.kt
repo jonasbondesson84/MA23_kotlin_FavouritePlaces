@@ -1,7 +1,7 @@
 package com.example.favouriteplaces
 
-import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
@@ -64,20 +65,28 @@ class FavouriteFragment : Fragment() {
         adapter = FavouritesAdapter(view.context, currentUser.favouritesList)
         rvFavourites.adapter = adapter
 
-        getFavourites()
+        getFavourites(view)
 
+        adapter.onCardClick = {
+            Log.d("!!!", it.docID.toString())
+            val fragment = FavouritesDetailsFragment.newInstance(it.docID.toString(),"")
+            (activity as MainActivity).switchFragment(fragment)
+
+        }
 
         fabAdd.setOnClickListener {
-            val intent = Intent(view.context, AddfavouriteActivity::class.java)
-            startActivity(intent)
+            (activity as MainActivity).switchFragment(AddFavouriteFragment())
         }
         return view
     }
 
-    private fun getFavourites() {
+    private fun getFavourites(view: View) {
         val user = currentUser
+        currentUser.favouritesList.clear()
 
         if (user.userID == null) {
+            fabAdd.visibility = View.INVISIBLE
+            Snackbar.make(view, getString(R.string.mustBeSignedIn), 2000).show()
             return
         } else {
             db.collection("users").document(user.userID.toString()).collection("favourites").get()

@@ -98,6 +98,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun signOut() {
+        currentUser.resetUser()
         auth.signOut()
         switchFragment(LoginFragment())
     }
