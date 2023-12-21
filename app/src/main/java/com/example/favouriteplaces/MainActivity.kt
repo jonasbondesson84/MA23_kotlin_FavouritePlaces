@@ -1,11 +1,18 @@
 package com.example.favouriteplaces
 
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
+import com.google.android.gms.location.LocationServices
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.Firebase
@@ -21,6 +28,12 @@ class MainActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var topAppBar: MaterialToolbar
     private lateinit var db: FirebaseFirestore
+    private lateinit var locationProvider: FusedLocationProviderClient
+    private lateinit var locationRequest: LocationRequest
+    private lateinit var locationCallback: LocationCallback
+    private val REQUEST_LOCATION = 1
+    private var lat: Double? = null
+    private var lng: Double? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,12 +41,25 @@ class MainActivity : AppCompatActivity() {
 
         flMain = findViewById(R.id.flMain)
         val bottomNavBar: BottomNavigationView = findViewById(R.id.bottom_navigation)
-        //val toolbar: Toolbar = findViewById(R.id.toolbar)
         db = Firebase.firestore
-
-        val user = User("")
         auth = Firebase.auth
         topAppBar = findViewById(R.id.topAppBar)
+
+        locationProvider = LocationServices.getFusedLocationProviderClient(this)
+        locationRequest = LocationRequest.Builder(2000L).build()
+        locationCallback = object : LocationCallback() {
+            override fun onLocationResult(locationResult: LocationResult) {
+
+            }
+        }
+
+        if(ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
+            != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION),
+                REQUEST_LOCATION)
+        }
+
         checkIfUserIsLoggedIn(StartFragment(), LoginFragment())
         topAppBar.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
@@ -58,8 +84,14 @@ class MainActivity : AppCompatActivity() {
                     true
                 }
                 R.id.map -> {
-                    switchFragment(MapsFragment())
-                    true
+                    if(lat != null) {
+                        lat?.let { it1 ->
+                            lng?.let { it2 -> switchFragment(MapsFragment2.newInstance(it1, it2)) } }
+                        true
+                    } else {
+                        switchFragment(MapsFragment2())
+                        true
+                    }
                 }
                 else -> {
                     checkIfUserIsLoggedIn(AccountFragment(), LoginFragment())
@@ -70,6 +102,11 @@ class MainActivity : AppCompatActivity() {
 
 
 
+    }
+
+    override fun onResume() {
+        super.onResume()
+        getLastLocation()
     }
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.default_menu, menu)
@@ -124,8 +161,8 @@ class MainActivity : AppCompatActivity() {
     private fun getCurrentUserInfo() {
         val user = auth.currentUser
         if(user != null) {
-            db.collection("usersCollection").get().addOnSuccessListener {DocumentSnapshot ->
-                for(document in DocumentSnapshot) {
+            db.collection("usersCollection").get().addOnSuccessListener {documentSnapshot ->
+                for(document in documentSnapshot) {
                     if(document.get("userID").toString() == user.uid) {
                         Log.d("!!!", "Got it!")
                         val user = document.toObject<User>()
@@ -145,5 +182,40 @@ class MainActivity : AppCompatActivity() {
 
         //currentUser.name =
 
+    }
+    private fun getLastLocation() {
+
+        if(ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
+            == PackageManager.PERMISSION_GRANTED) {
+            locationProvider.lastLocation.addOnCompleteListener {task->
+                if(task.isSuccessful) {
+                     val location = task.result
+
+                    if (location != null) {
+                        lat = location.latitude
+                        lng = location.longitude
+//                        Snackbar.make(flMain, "lat: ${location.latitude} lng: ${location.longitude}", 2000).show()
+                        Log.d("!!!", "lat: ${location.latitude} lng: ${location.longitude}")
+                    } else {
+                        Log.d("!!!", "No location")
+                    }
+
+                }
+            }
+        }
+
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if(requestCode == REQUEST_LOCATION) {
+            if(grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                getLastLocation()
+            }
+        }
     }
 }
