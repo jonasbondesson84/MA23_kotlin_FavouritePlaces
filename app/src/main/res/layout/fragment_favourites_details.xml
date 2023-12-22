@@ -29,5 +29,40 @@
             app:layout_constraintEnd_toEndOf="@+id/tvDetailsTitle"
             app:layout_constraintStart_toStartOf="@+id/tvDetailsTitle"
             app:layout_constraintTop_toBottomOf="@+id/tvDetailsTitle" />
+
+        <TextView
+            android:id="@+id/tvDetailsCatecory"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="TextView"
+            app:layout_constraintEnd_toEndOf="@+id/tvDetailsDescription"
+            app:layout_constraintStart_toStartOf="@+id/tvDetailsDescription"
+            app:layout_constraintTop_toBottomOf="@+id/tvDetailsDescription" />
+
+        <ImageButton
+            android:id="@+id/imbDetailsLocation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/baseline_location_on_24"
+            app:layout_constraintEnd_toEndOf="@+id/tvDetailsCatecory"
+            app:layout_constraintStart_toStartOf="@+id/tvDetailsCatecory"
+            app:layout_constraintTop_toBottomOf="@+id/tvDetailsCatecory" />
+
+        <RatingBar
+            android:id="@+id/rbDetailsStars"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/imbDetailsLocation" />
+
+        <TextView
+            android:id="@+id/tvDetailsReview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="TextView"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/rbDetailsStars" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>
