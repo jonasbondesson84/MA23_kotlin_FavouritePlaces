@@ -11,6 +11,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.snackbar.Snackbar
 
 private const val ARG_PARAM1 = "lat"
@@ -60,6 +61,7 @@ class MapsFragment2 : Fragment() , OnMapReadyCallback{
 
     override fun onResume() {
         super.onResume()
+        setMarkers()
 
 
     }
@@ -71,7 +73,15 @@ class MapsFragment2 : Fragment() , OnMapReadyCallback{
         mapFragment?.getMapAsync(this)
     }
 
+    private fun setMarkers() {
+        for(place in currentUser.favouritesList) {
+            createMark(place)
+        }
+    }
 
+    private fun createMark(place: Place) {
+
+    }
 
     private fun getLatLang(view: View) {
         if (lat != null && lng != null) {
@@ -104,6 +114,8 @@ class MapsFragment2 : Fragment() , OnMapReadyCallback{
     }
 
     override fun onMapReady(map: GoogleMap) {
+        val adapter = PlacesInfoAdapter(requireContext())
+        map.setInfoWindowAdapter(adapter)
 
         if (lat != null && lng != null) {
            map.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(lat!!, lng!!), 15f))
@@ -111,6 +123,13 @@ class MapsFragment2 : Fragment() , OnMapReadyCallback{
         } else {
             val sthlm = LatLng(59.334591, 18.063240)
             map.moveCamera(CameraUpdateFactory.newLatLngZoom(sthlm, 15f))
+        }
+        for(place in currentUser.favouritesList) {
+             place.lat?.let { place.lng?.let { it1 -> val location = LatLng(it, it1)
+                val marker = map.addMarker(MarkerOptions().position(location).title(place.title))
+                 marker?.tag = place
+            } }
+
         }
     }
 }
