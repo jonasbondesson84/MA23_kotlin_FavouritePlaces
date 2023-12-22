@@ -80,6 +80,8 @@ class MainActivity : AppCompatActivity() {
                     true
                 }
                 R.id.favourite -> {
+//                    val intent = Intent(this, AddfavouriteActivity::class.java)
+//                    startActivity(intent)
                     switchFragment(FavouriteFragment())
                     true
                 }
