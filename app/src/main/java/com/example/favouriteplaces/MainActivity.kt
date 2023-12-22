@@ -154,6 +154,28 @@ class MainActivity : AppCompatActivity() {
             switchFragment(loggedInFragment)
         }
     }
+    private fun getFavourites() {
+        val user = currentUser
+        currentUser.favouritesList.clear()
+
+        if (user.userID == null) {
+            //Snackbar.make(view, getString(R.string.mustBeSignedIn), 2000).show()
+            return
+        } else {
+            db.collection("users").document(user.userID.toString()).collection("favourites").get()
+                .addOnSuccessListener { documentSnapshot ->
+                    for (document in documentSnapshot.documents) {
+                        val place = document.toObject<Place>()
+                        if (place != null) {
+                            currentUser.favouritesList.add(place)
+                        }
+                    }
+
+                }
+
+        }
+
+    }
 
     fun switchFragment(fragment: Fragment) {
         val transaction = supportFragmentManager.beginTransaction()
@@ -174,6 +196,7 @@ class MainActivity : AppCompatActivity() {
                         currentUser.location = user.location
                         currentUser.documentId = user.documentId
                         Log.d("!!!", currentUser.documentId.toString())
+                        getFavourites()
                         return@addOnSuccessListener
                     }
                 }
