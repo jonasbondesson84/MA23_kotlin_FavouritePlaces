@@ -11,13 +11,16 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.RatingBar
 import android.widget.Spinner
+import android.widget.TextView
 import android.widget.ToggleButton
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.Firebase
@@ -56,6 +59,11 @@ class AddFavouriteFragment : Fragment() {
     private lateinit var rbStars: RatingBar
     private lateinit var etvReview: EditText
     private lateinit var tbSharePlace: ToggleButton
+    private lateinit var btnGetLocation: ImageButton
+    private lateinit var tvAddLatLng: TextView
+    private var latitude: Double? = null
+    private var longitude: Double? = null
+    private val sharedViewModel: SharedViewModel by activityViewModels()
 
     private val TAKE_PHOTO_CODE = 1
     private val SELECT_PHOTO_CODE = 2
@@ -105,11 +113,21 @@ class AddFavouriteFragment : Fragment() {
         rbStars = view.findViewById(R.id.rbStars)
         etvReview = view.findViewById(R.id.etvReview)
         tbSharePlace = view.findViewById(R.id.tbSharePlace)
+        btnGetLocation = view.findViewById(R.id.imbAddLocation)
+        tvAddLatLng = view.findViewById(R.id.tvAddLatLng)
         auth = Firebase.auth
         db = Firebase.firestore
 
+
+
+
+
         btnSave.setOnClickListener {
             saveItem(it)
+        }
+
+        btnGetLocation.setOnClickListener {
+            (activity as MainActivity).startNewFragmentForSetLocation()
         }
 
         btnTakeImage.setOnClickListener {
@@ -133,6 +151,11 @@ class AddFavouriteFragment : Fragment() {
         }
 
         return view
+    }
+
+    override fun onResume() {
+        super.onResume()
+
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -207,6 +230,7 @@ class AddFavouriteFragment : Fragment() {
     }
 
 
+
     private fun selectPhoto() {
         val intent = Intent(MediaStore.ACTION_PICK_IMAGES)
             startActivityForResult(intent, SELECT_PHOTO_CODE)
@@ -216,8 +240,7 @@ class AddFavouriteFragment : Fragment() {
         val title = etvTitle.text.toString()
         val description = if( etvDescription.text.isNotEmpty()) etvDescription.text.toString() else null
        // val category = spCategory.selectedItem.toString()
-        val lat = 17.0
-        val lng = 17.0
+
         val stars = rbStars.rating
         val review = if (etvReview.text.isNotEmpty()) etvReview.text.toString() else null
         val sharePublic = tbSharePlace.isActivated
@@ -230,11 +253,12 @@ class AddFavouriteFragment : Fragment() {
                 title = title,
                 description = description,
                 //category = category,
-                lat = lat,
-                lng = lng,
                 stars = stars,
                 review = review,
-                public = sharePublic
+                public = sharePublic,
+                lat = sharedViewModel.lat.value,
+                lng = sharedViewModel.lng.value
+
 
                 )
             db.collection("users").document(user.userID.toString()).collection("favourites").add(place)
