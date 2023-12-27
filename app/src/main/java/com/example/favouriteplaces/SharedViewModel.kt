@@ -11,6 +11,8 @@ class SharedViewModel : ViewModel() {
     val title: LiveData<String> = _title
     private val _description = MutableLiveData<String>()
     val description: LiveData<String> = _description
+    private val _category = MutableLiveData<String>()
+    val category: LiveData<String> = _category
     private val _stars = MutableLiveData<Float>()
     val stars: LiveData<Float> = _stars
     private val _review = MutableLiveData<String>()
@@ -44,6 +46,9 @@ class SharedViewModel : ViewModel() {
     fun setLocation(location: LatLng) {
         _lat.value = location.latitude
         _lng.value = location.longitude
+    }
+    fun setCategory(category: String) {
+        _category.value = category
     }
 
 

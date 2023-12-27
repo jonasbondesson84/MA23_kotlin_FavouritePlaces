@@ -6,9 +6,12 @@ import android.graphics.Bitmap
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
@@ -43,7 +46,7 @@ private const val ARG_PARAM2 = "param2"
  * Use the [AddFavouriteFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class AddFavouriteFragment : Fragment() {
+class AddFavouriteFragment : Fragment(),  AdapterView.OnItemSelectedListener {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
@@ -61,6 +64,7 @@ class AddFavouriteFragment : Fragment() {
     private lateinit var tbSharePlace: ToggleButton
     private lateinit var btnGetLocation: ImageButton
     private lateinit var tvAddLatLng: TextView
+
     private var latitude: Double? = null
     private var longitude: Double? = null
     private val sharedViewModel: SharedViewModel by activityViewModels()
@@ -117,6 +121,18 @@ class AddFavouriteFragment : Fragment() {
         tvAddLatLng = view.findViewById(R.id.tvAddLatLng)
         auth = Firebase.auth
         db = Firebase.firestore
+        ArrayAdapter.createFromResource(
+            requireContext(),
+            R.array.categories_array,
+            android.R.layout.simple_spinner_item
+        ).also { adapter ->
+            // Specify the layout to use when the list of choices appears.
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            // Apply the adapter to the spinner.
+            spCategory.adapter = adapter
+        }
+
+        spCategory.onItemSelectedListener = this
 
 
 
@@ -157,6 +173,7 @@ class AddFavouriteFragment : Fragment() {
         super.onResume()
 
     }
+
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -290,5 +307,16 @@ class AddFavouriteFragment : Fragment() {
                     putString(ARG_PARAM2, param2)
                 }
             }
+    }
+
+    override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+        if (parent != null) {
+            sharedViewModel.setCategory(parent.getItemAtPosition(position).toString())
+            Log.d("!!!", sharedViewModel.category.value.toString())
+        }
+    }
+
+    override fun onNothingSelected(parent: AdapterView<*>?) {
+        TODO("Not yet implemented")
     }
 }
