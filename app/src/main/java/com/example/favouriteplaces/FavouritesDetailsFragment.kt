@@ -73,13 +73,21 @@ class FavouritesDetailsFragment : Fragment() {
 
         btnLocation.setOnClickListener {
             if(currentPlace != null) {
-                currentPlace!!.lat?.let { it1 ->
-                    currentPlace!!.lng?.let { it2 ->
-                        (activity as MainActivity).switchFragment(MapsFragment2.newInstance(it1, it2))
+
+                currentPlace!!.lat?.let {it1 ->
+                    currentPlace!!.lng?.let {it2 ->
+                        (activity as MainActivity).switchFragment(
+                            MapsFragment2.newInstance(
+                                it1,
+                                it2,
+                                false
+                            )
+                        )
                     }
                 }
+                }
             }
-        }
+
 
         return view
     }

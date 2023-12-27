@@ -125,6 +125,16 @@
                 app:layout_constraintBottom_toBottomOf="@+id/fabAddTakeImage"
                 app:layout_constraintEnd_toStartOf="@+id/fabAddTakeImage" />
 
+            <TextView
+                android:id="@+id/tvAddLatLng"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="TextView"
+                app:layout_constraintBottom_toBottomOf="@+id/imbAddLocation"
+                app:layout_constraintStart_toEndOf="@+id/imbAddLocation"
+                app:layout_constraintTop_toTopOf="@+id/imbAddLocation" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
 

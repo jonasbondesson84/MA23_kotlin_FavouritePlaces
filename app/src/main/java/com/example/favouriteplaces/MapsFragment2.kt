@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -14,12 +15,16 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.snackbar.Snackbar
 
+
 private const val ARG_PARAM1 = "lat"
 private const val ARG_PARAM2 = "lng"
+private const val ARG_PARAM3 = "setLatLng"
 
 class MapsFragment2 : Fragment() , OnMapReadyCallback{
     private var lat: Double? = null
     private var lng: Double? = null
+    private var setLatLng: Boolean? = null
+    private val sharedViewModel: SharedViewModel by activityViewModels()
 
 
 //    private val callback = OnMapReadyCallback { googleMap ->
@@ -43,6 +48,7 @@ class MapsFragment2 : Fragment() , OnMapReadyCallback{
         arguments?.let {
             lat = it.getDouble(ARG_PARAM1)
             lng = it.getDouble(ARG_PARAM2)
+            setLatLng = it.getBoolean(ARG_PARAM3)
         }
 
 
@@ -54,6 +60,7 @@ class MapsFragment2 : Fragment() , OnMapReadyCallback{
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_maps2, container, false)
+
         getLatLang(view)
 
         return view
@@ -104,11 +111,12 @@ class MapsFragment2 : Fragment() , OnMapReadyCallback{
          */
         // TODO: Rename and change types and number of parameters
         @JvmStatic
-        fun newInstance(lat: Double, lng: Double) =
+        fun newInstance(lat: Double, lng: Double, setLatLng: Boolean) =
             MapsFragment2().apply {
                 arguments = Bundle().apply {
                     putDouble(ARG_PARAM1, lat)
                     putDouble(ARG_PARAM2, lng)
+                    putBoolean(ARG_PARAM3, setLatLng)
                 }
             }
     }
@@ -116,6 +124,16 @@ class MapsFragment2 : Fragment() , OnMapReadyCallback{
     override fun onMapReady(map: GoogleMap) {
         val adapter = PlacesInfoAdapter(requireContext())
         map.setInfoWindowAdapter(adapter)
+
+        map.setOnMapClickListener {
+            if(setLatLng != null) {
+                if(setLatLng as Boolean) {
+                    sharedViewModel.setLocation(it)
+
+                    closeFragment()
+                }
+            }
+        }
 
         if (lat != null && lng != null) {
            map.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(lat!!, lng!!), 15f))
@@ -125,11 +143,33 @@ class MapsFragment2 : Fragment() , OnMapReadyCallback{
             map.moveCamera(CameraUpdateFactory.newLatLngZoom(sthlm, 15f))
         }
         for(place in currentUser.favouritesList) {
-             place.lat?.let { place.lng?.let { it1 -> val location = LatLng(it, it1)
-                val marker = map.addMarker(MarkerOptions().position(location).title(place.title))
-                 marker?.tag = place
-            } }
+             place.lat?.let {it1 ->
+                 place.lng?.let {it2 ->
+                     val position = LatLng(it1, it2)
+                     val marker = map.addMarker(MarkerOptions().position(position).title(place.title))
+                     marker?.tag = place
+                 }
+             }
 
         }
     }
+
+
+
+    private fun closeFragment() {
+        val activity = activity
+        if(activity != null && isAdded) {
+
+            val fragmentManager = activity.supportFragmentManager
+            if(fragmentManager.backStackEntryCount > 0 ) {
+                fragmentManager.popBackStack()
+            } else {
+                fragmentManager.beginTransaction().remove(this).commit()
+            }
+        }
+    }
+
+
+
 }
+

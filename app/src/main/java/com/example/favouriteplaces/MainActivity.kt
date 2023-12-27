@@ -13,6 +13,7 @@ import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.Firebase
@@ -22,7 +23,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
 import com.google.firebase.firestore.toObject
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     private lateinit var flMain: FrameLayout
     private lateinit var auth: FirebaseAuth
@@ -35,9 +36,11 @@ class MainActivity : AppCompatActivity() {
     private var lat: Double? = null
     private var lng: Double? = null
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
 
         flMain = findViewById(R.id.flMain)
         val bottomNavBar: BottomNavigationView = findViewById(R.id.bottom_navigation)
@@ -88,7 +91,7 @@ class MainActivity : AppCompatActivity() {
                 R.id.map -> {
                     if(lat != null) {
                         lat?.let { it1 ->
-                            lng?.let { it2 -> switchFragment(MapsFragment2.newInstance(it1, it2)) } }
+                            lng?.let { it2 -> switchFragment(MapsFragment2.newInstance(it1, it2, false)) } }
                         true
                     } else {
                         switchFragment(MapsFragment2())
@@ -182,6 +185,22 @@ class MainActivity : AppCompatActivity() {
         transaction.replace(R.id.flMain, fragment).commit()
         invalidateOptionsMenu()
     }
+
+    fun startNewFragmentForSetLocation() {
+        getLastLocation()
+        val transaction = supportFragmentManager.beginTransaction()
+        if(lat != null) {
+            lat?.let { it1 ->
+                lng?.let { it2 ->
+                    transaction.add(R.id.flMain,
+                        MapsFragment2.newInstance(it1, it2, true),
+                        "getLatLng"
+                    ).commit()
+                }
+            }
+        }
+
+    }
     private fun getCurrentUserInfo() {
         val user = auth.currentUser
         if(user != null) {
@@ -222,6 +241,9 @@ class MainActivity : AppCompatActivity() {
 //                        Snackbar.make(flMain, "lat: ${location.latitude} lng: ${location.longitude}", 2000).show()
                         Log.d("!!!", "lat: ${location.latitude} lng: ${location.longitude}")
                     } else {
+                        val sthlm = LatLng(59.334591, 18.063240)
+                        lat = sthlm.latitude
+                        lng = sthlm.longitude
                         Log.d("!!!", "No location")
                     }
 
@@ -243,4 +265,5 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+
 }
