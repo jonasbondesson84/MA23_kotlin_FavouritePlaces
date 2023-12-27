@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.ImageButton
 import android.widget.RatingBar
 import android.widget.TextView
@@ -38,6 +39,7 @@ class FavouritesDetailsFragment : Fragment() {
     private lateinit var tvCategory: TextView
     private lateinit var rbStar: RatingBar
     private lateinit var btnLocation: ImageButton
+    private lateinit var btnDelete: Button
     private var currentPlace: Place? = null
 
 
@@ -63,12 +65,25 @@ class FavouritesDetailsFragment : Fragment() {
         tvReview = view.findViewById(R.id.tvDetailsReview)
         rbStar = view.findViewById(R.id.rbDetailsStars)
         btnLocation = view.findViewById(R.id.imbDetailsLocation)
+        btnDelete = view.findViewById(R.id.btnDelete)
 
 
 
         hideAllElements()
         if(param1 != null) {
             getPlace()
+        }
+
+        btnDelete.setOnClickListener {
+            currentPlace?.docID?.let {
+                db.collection("users").document(currentUser.userID.toString()).collection(
+                    "favourites"
+                ).document(it).delete().addOnCompleteListener {task ->
+                    if(task.isSuccessful) {
+                        (activity as MainActivity).switchFragment(FavouriteFragment())
+                    }
+                }
+            }
         }
 
         btnLocation.setOnClickListener {
