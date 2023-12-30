@@ -152,6 +152,19 @@ class MapsFragment2 : Fragment() , OnMapReadyCallback{
              }
 
         }
+        Log.d("!!!", "size of shared: ${currentUser.sharedFavouritesList.size}")
+        for(place in currentUser.sharedFavouritesList) {
+            Log.d("!!!", "${place.title}, ${place.public}, ${place.lat}")
+            place.lat?.let {it1 ->
+                place.lng?.let {it2 ->
+                    Log.d("!!!", "here we are")
+                    val position = LatLng(it1, it2)
+                    val marker = map.addMarker(MarkerOptions().position(position).title(place.title))
+                    marker?.tag = place
+                }
+            }
+
+        }
     }
 
 
