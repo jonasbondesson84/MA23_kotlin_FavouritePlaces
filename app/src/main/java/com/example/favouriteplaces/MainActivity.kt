@@ -160,7 +160,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private fun getFavourites() {
         val user = currentUser
         currentUser.favouritesList.clear()
-
         if (user.userID == null) {
             //Snackbar.make(view, getString(R.string.mustBeSignedIn), 2000).show()
             return
@@ -173,11 +172,31 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                             currentUser.favouritesList.add(place)
                         }
                     }
-
                 }
-
         }
 
+
+    }
+    fun getShared() {
+        db.collection("usersCollection").get().addOnSuccessListener { documentSnapshot ->
+            for (document in documentSnapshot) {
+
+                val user = document.get("userID").toString()
+                if(user != null) {
+                    db.collection("users").document(user).collection("favourites").get()
+                        .addOnSuccessListener {
+                            for(document in it) {
+                                val place = document.toObject<Place>()
+                                if(place != null  && place.public == true) {
+                                    currentUser.sharedFavouritesList.add(place)
+                                    //currentUser.favouritesList.add(place)
+                                    Log.d("!!!", "place: ${place.docID}")
+                                }
+                            }
+                        }
+                }
+            }
+        }
     }
 
     fun switchFragment(fragment: Fragment) {
@@ -216,6 +235,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                         currentUser.documentId = user.documentId
                         Log.d("!!!", currentUser.documentId.toString())
                         getFavourites()
+                        getShared()
                         return@addOnSuccessListener
                     }
                 }

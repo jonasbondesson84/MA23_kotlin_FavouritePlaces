@@ -260,7 +260,7 @@ class AddFavouriteFragment : Fragment(),  AdapterView.OnItemSelectedListener {
 
         val stars = rbStars.rating
         val review = if (etvReview.text.isNotEmpty()) etvReview.text.toString() else null
-        val sharePublic = tbSharePlace.isActivated
+        val sharePublic = tbSharePlace.isChecked
         val user = currentUser
 
         if(title.isEmpty() || user.userID == null) {
@@ -274,7 +274,8 @@ class AddFavouriteFragment : Fragment(),  AdapterView.OnItemSelectedListener {
                 review = review,
                 public = sharePublic,
                 lat = sharedViewModel.lat.value,
-                lng = sharedViewModel.lng.value
+                lng = sharedViewModel.lng.value,
+                author = user.userID
 
 
                 )
