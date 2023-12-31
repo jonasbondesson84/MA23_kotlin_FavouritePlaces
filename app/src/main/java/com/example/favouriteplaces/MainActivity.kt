@@ -3,7 +3,6 @@ package com.example.favouriteplaces
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
-import android.view.Menu
 import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -14,7 +13,6 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
@@ -27,7 +25,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     private lateinit var flMain: FrameLayout
     private lateinit var auth: FirebaseAuth
-    private lateinit var topAppBar: MaterialToolbar
+
     private lateinit var db: FirebaseFirestore
     private lateinit var locationProvider: FusedLocationProviderClient
     private lateinit var locationRequest: LocationRequest
@@ -46,7 +44,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         val bottomNavBar: BottomNavigationView = findViewById(R.id.bottom_navigation)
         db = Firebase.firestore
         auth = Firebase.auth
-        topAppBar = findViewById(R.id.topAppBar)
+
 
         locationProvider = LocationServices.getFusedLocationProviderClient(this)
         locationRequest = LocationRequest.Builder(2000L).build()
@@ -64,16 +62,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         }
 
         checkIfUserIsLoggedIn(StartFragment(), LoginFragment())
-        topAppBar.setOnMenuItemClickListener { menuItem ->
-            when (menuItem.itemId) {
-                R.id.menuLogoutAccount -> {
-                    signOut()
-                    true
-                }
 
-                else -> false
-            }
-        }
 
 
         bottomNavBar.setOnItemSelectedListener {
@@ -113,38 +102,11 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         super.onResume()
         getLastLocation()
     }
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.default_menu, menu)
-        updateMenuBasedOnFragment(menu)
-        return true
-    }
 
-    private fun updateMenuBasedOnFragment(menu: Menu) {
-        val currentFragment = supportFragmentManager.findFragmentById(R.id.flMain)
 
-        when (currentFragment) {
-            AccountFragment() -> {
-                menu.findItem(R.id.menuLogoutAccount)?.isVisible = true
-                menu.findItem(R.id.menuAddFavourite)?.isVisible = false
-            }
-            FavouriteFragment() -> {
-                menu.findItem(R.id.menuLogoutAccount)?.isVisible = false
-                menu.findItem(R.id.menuAddFavourite)?.isVisible = true
-            }
-            else -> {
-                menu.findItem(R.id.menuLogoutAccount)?.isVisible = false
-                menu.findItem(R.id.menuAddFavourite)?.isVisible = false
-            }
 
-        }
-    }
 
-    private fun signOut() {
-        currentUser.resetUser()
 
-        auth.signOut()
-        switchFragment(LoginFragment())
-    }
 
 
 

@@ -10,6 +10,8 @@ import android.widget.ImageButton
 import android.widget.RatingBar
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
@@ -66,6 +68,7 @@ class FavouritesDetailsFragment : Fragment() {
         rbStar = view.findViewById(R.id.rbDetailsStars)
         btnLocation = view.findViewById(R.id.imbDetailsLocation)
         btnDelete = view.findViewById(R.id.btnDelete)
+        val topBarFavourite = view.findViewById<MaterialToolbar>(R.id.topAppBarDetails)
 
 
 
@@ -74,17 +77,23 @@ class FavouritesDetailsFragment : Fragment() {
             getPlace()
         }
 
-        btnDelete.setOnClickListener {
-            currentPlace?.docID?.let {
-                db.collection("users").document(currentUser.userID.toString()).collection(
-                    "favourites"
-                ).document(it).delete().addOnCompleteListener {task ->
-                    if(task.isSuccessful) {
-                        (activity as MainActivity).switchFragment(FavouriteFragment())
-                    }
-                }
+        topBarFavourite.setOnMenuItemClickListener {menuItem ->
+        when (menuItem.itemId) {
+            R.id.menuSavePlace -> {
+                true
             }
+            R.id.menuEditFavourite -> {
+                true
+            }
+            R.id.menuDeleteFavourite -> {
+                showDeleteDialog()
+                true
+            }
+            else -> false
         }
+
+        }
+
 
         btnLocation.setOnClickListener {
             if(currentPlace != null) {
@@ -105,6 +114,36 @@ class FavouritesDetailsFragment : Fragment() {
 
 
         return view
+    }
+
+    private fun showDeleteDialog() {
+        context?.let {
+            MaterialAlertDialogBuilder(it)
+                .setTitle(resources.getString(R.string.warning))
+                .setMessage(resources.getString(R.string.deleteDesc))
+
+                .setNegativeButton(resources.getString(R.string.no)) { dialog, which ->
+                    // Respond to negative button press
+
+                }
+                .setPositiveButton(resources.getString(R.string.yes)) { dialog, which ->
+                    // Respond to positive button press
+                    deleteItem()
+                }
+                .show()
+        }
+    }
+
+    private fun deleteItem() {
+        currentPlace?.docID?.let {
+            db.collection("users").document(currentUser.userID.toString()).collection(
+                "favourites"
+            ).document(it).delete().addOnCompleteListener {task ->
+                if(task.isSuccessful) {
+                    (activity as MainActivity).switchFragment(FavouriteFragment())
+                }
+            }
+        }
     }
 
     private fun getPlace() {
