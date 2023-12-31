@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import androidx.fragment.app.Fragment
+import com.google.android.material.appbar.MaterialToolbar
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
@@ -60,6 +61,7 @@ class AccountFragment : Fragment() {
         btnSave = view.findViewById(R.id.btnSave)
         etvLocation = view.findViewById(R.id.etvAccountLocation)
         etvName = view.findViewById(R.id.etcAccountName)
+        val topAppBar = view.findViewById<MaterialToolbar>(R.id.topAppBar)
 
         btnSave.setOnClickListener {
             val name = etvName.text.toString()
@@ -78,9 +80,25 @@ class AccountFragment : Fragment() {
             }
 
         }
+        topAppBar.setOnMenuItemClickListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.menuLogoutAccount -> {
+                    signOut()
+                    true
+                }
+
+                else -> false
+            }
+        }
 
 
         return view
+    }
+    private fun signOut() {
+        currentUser.resetUser()
+
+        auth.signOut()
+        (activity as MainActivity).switchFragment(LoginFragment())
     }
 
 
