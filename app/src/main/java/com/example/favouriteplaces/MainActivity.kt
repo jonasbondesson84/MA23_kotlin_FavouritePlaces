@@ -141,6 +141,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     private fun signOut() {
         currentUser.resetUser()
+
         auth.signOut()
         switchFragment(LoginFragment())
     }

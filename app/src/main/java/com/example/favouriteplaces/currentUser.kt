@@ -18,6 +18,7 @@ object currentUser {
         name = null
         location = null
         userImage = null
+        favouritesList.clear()
     }
 
 }
